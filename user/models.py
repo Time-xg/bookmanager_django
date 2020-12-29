@@ -15,6 +15,7 @@ class UserInfo(models.Model):
     # )
 
     name = models.CharField(unique=True, max_length=50)
+    password = models.CharField(max_length=25)
     permission = models.CharField(max_length=20, default='reader')
     gender = models.CharField(max_length=20, default='male')
 
