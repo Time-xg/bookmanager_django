@@ -69,8 +69,13 @@ class SearchBook(View):
         return JsonResponse(json.dumps(json_content, ensure_ascii=False), content_type='application/json', safe=False )
 
     def get(self,request):
+        json_content = ''
+        books = BookInfo.objects.all()
+        for book in books:
+            book_data = model_to_dict(book)
+            json_content += str(book_data)
 
-        return HttpResponse("test")
+        return JsonResponse(json.dumps(json_content, ensure_ascii=False), content_type='application/json', safe=False)
 
 
 class DeleteBook(View):
