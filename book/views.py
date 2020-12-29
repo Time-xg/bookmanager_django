@@ -13,6 +13,7 @@ from book.models import BookInfo
 
 
 def getBookInfo(isbn):
+
     url = 'https://book.feelyou.top/isbn/' + isbn
     resp = requests.get(url=url)
     if resp.status_code == 200:
@@ -26,7 +27,7 @@ class AddBook(View):
 
     def post(self, request):
         params = request.POST
-        isbn = params.get("ISBN")
+        isbn = params.get("isbn")
         book_info = getBookInfo(isbn)
 
         if book_info:
@@ -40,22 +41,22 @@ class AddBook(View):
                     author=abstract[0].strip(),
                     press=abstract[1].strip(),
                     price=abstract[3].strip(),
-                    isbn=params.get("ISBN"),
+                    isbn=isbn,
                     labels=book_info['labels'],
                     cover_url=book_info['cover_url'],
                     publish_date=abstract[2].strip(),
                 )
-                return HttpResponse('添加成功')
+                return HttpResponse('Add Book successful')
         else:
-            return HttpResponse('查无书籍')
+            return HttpResponse("Don't this Book")
 
-    def get(self,request):
+    def get(self, request):
         return HttpResponse('111')
 
 
 class SearchBook(View):
 
-    def post(self,request):
+    def post(self, request):
         params = request.POST
         search_content = str(params.get("content")).strip()
         books = BookInfo.objects.filter(name__contains=search_content)
@@ -70,4 +71,52 @@ class SearchBook(View):
     def get(self,request):
 
         return HttpResponse("test")
+
+
+class DeleteBook(View):
+
+    def post(self,request):
+        params = request.POST
+        book_id = params.get('id')
+        try:
+            book = BookInfo.objects.get(id=book_id)
+            book.delete()
+            return HttpResponse("Delete Book successful")
+        except BookInfo.DoesNotExist as e:
+            return HttpResponse("Don't this Book")
+
+
+class AlterBook(View):
+
+    def post(self, request):
+        params = request.POST
+        book_id = params.get('id')
+        try:
+            book = BookInfo.objects.get(id=book_id)
+
+            name = str(params.get('name')).strip()
+            author = str(params.get('author')).strip()
+            press = str(params.get('press')).strip()
+            price = str(params.get('price')).strip()
+            isbn = str(params.get('isbn')).strip()
+            labels = str(params.get('labels')).strip()
+            cover_url = str(params.get('cover_url')).strip()
+            publish_date = str(params.get('publish_date')).strip()
+
+            book.name = name if name else book.name
+            book.author = author if author else book.author
+            book.press = press if press else book.press
+            book.price = price if price else book.price
+            book.isbn = isbn if isbn else book.isbn
+            book.labels = labels if labels else book.labels
+            book.cover_url = cover_url if cover_url else book.cover_url
+            book.publish_date = publish_date if publish_date else book.publish_date
+            book.save()
+            return HttpResponse("Alter Book successful")
+        except BookInfo.DoesNotExist as e:
+            return HttpResponse("Don't this Book")
+
+
+
+
 
