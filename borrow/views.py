@@ -1,3 +1,6 @@
+import json
+
+from django.core.serializers import serialize
 from django.http import HttpResponse
 from django.shortcuts import render
 
@@ -73,3 +76,16 @@ class ContinueBorrow(View):
             return HttpResponse('return book succeed')
         else:
             return HttpResponse('borrow info error')
+
+class SearchBorrow(View):
+
+    def post(self,request):
+        pass
+
+    def get(self,request):
+        data = {}
+        books = BorrowInfo.objects.all()
+        data['borrows'] = json.loads(serialize('json', books))
+        json_data = json.dumps(data, ensure_ascii=False)
+        return HttpResponse(json_data
+                            , content_type="application/json,charset=utf-8")

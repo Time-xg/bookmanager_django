@@ -2,6 +2,7 @@
 import json
 
 import requests
+from django.core.serializers import serialize
 from django.forms import model_to_dict
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -57,25 +58,23 @@ class AddBook(View):
 class SearchBook(View):
 
     def post(self, request):
+        data = {}
         params = request.POST
         search_content = str(params.get("content")).strip()
         books = BookInfo.objects.filter(name__contains=search_content)
-
-        json_content = ''
-        for book in books:
-            book_data = model_to_dict(book)
-            json_content += str(book_data)
-
-        return JsonResponse(json.dumps(json_content, ensure_ascii=False), content_type='application/json', safe=False )
+        data['books'] = json.loads(serialize('json', books))
+        json_data = json.dumps(data, ensure_ascii=False)
+        return HttpResponse(json_data
+                            , content_type="application/json,charset=utf-8")
 
     def get(self,request):
-        json_content = ''
+        data = {}
         books = BookInfo.objects.all()
-        for book in books:
-            book_data = model_to_dict(book)
-            json_content += str(book_data)
+        data['books'] = json.loads(serialize('json', books))
+        json_data = json.dumps(data, ensure_ascii=False)
+        return HttpResponse(json_data
+                            , content_type="application/json,charset=utf-8")
 
-        return JsonResponse(json.dumps(json_content, ensure_ascii=False), content_type='application/json', safe=False)
 
 
 class DeleteBook(View):

@@ -14,6 +14,7 @@ class CreatUser(View):
         UserInfo.objects.create(
             name=params.get('name'),
             permission=params.get('permission'),
+            password=params.get('password'),
             gender=params.get('gender'),
         )
         return HttpResponse("Add user succeed")
