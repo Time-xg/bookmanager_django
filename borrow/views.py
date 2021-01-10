@@ -12,6 +12,7 @@ from borrow.models import BorrowInfo
 from user.models import UserInfo
 from datetime import date
 
+
 class BorrowBook(View):
 
     def post(self, request):
@@ -58,6 +59,7 @@ class ReturnBook(View):
         else:
             return HttpResponse('borrow info error')
 
+
 class ContinueBorrow(View):
 
     def post(self,request):
@@ -76,6 +78,71 @@ class ContinueBorrow(View):
             return HttpResponse('return book succeed')
         else:
             return HttpResponse('borrow info error')
+
+
+class Borrowfines(View):
+
+    def post(self, request):
+
+        params = request.POST
+        user_id = params.get('userID')
+        book_id = params.get('bookID')
+        try:
+            user = UserInfo.objects.get(id=user_id)
+            book = BookInfo.objects.get(id=book_id)
+        except BaseException as e:
+            return HttpResponse("user or book don't existent")
+        borrow_item = BorrowInfo.objects.filter(user=user, book=book)
+        if borrow_item:
+            borrow_num = borrow_item[0].borrow_num
+            borrow_date = borrow_item[0].borrow_time
+            cur_time = date.today()
+            delta = cur_time - borrow_date
+            if delta.days > borrow_num:
+                fines = delta.days - borrow_num
+                borrow_item.update(
+                    fines=fines
+                )
+                return HttpResponse('Fines is ' + str(fines) + ' RMB')
+            else:
+                return HttpResponse('not fines')
+        else:
+            return HttpResponse('borrow info error')
+
+    def get(self, request):
+
+        borrows = BorrowInfo.objects.all()
+        for borrow_item in borrows:
+            borrow_date = borrow_item.borrow_time
+            borrow_num = borrow_item.borrow_num
+            cur_time = date.today()
+            delta = cur_time - borrow_date
+            if delta.days > borrow_num:
+                fines = delta.days - borrow_num
+                borrow_item.update(
+                    fines=fines
+                )
+        return HttpResponse('Update fines succeed')
+
+
+class PayFines(View):
+
+    def post(self, request):
+        params = request.POST
+        user_id = params.get('userID')
+        book_id = params.get('bookID')
+        try:
+            user = UserInfo.objects.get(id=user_id)
+            book = BookInfo.objects.get(id=book_id)
+        except BaseException as e:
+            return HttpResponse("user or book don't existent")
+        borrow_item = BorrowInfo.objects.filter(user=user, book=book)
+        if borrow_item:
+            borrow_item[0].delete()
+            return HttpResponse('Pay to fines succeed')
+        else:
+            return HttpResponse('borrow info error')
+
 
 class SearchBorrow(View):
 
