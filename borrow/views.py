@@ -18,11 +18,12 @@ class BorrowBook(View):
     def post(self, request):
         params = request.POST
         user_id = params.get('userID')
-        book_id = params.get('bookID')
+        # book_id = params.get('bookID')
+        isbn = params.get('isbn')
         days = params.get('days')
         try:
             user = UserInfo.objects.get(id=user_id)
-            book = BookInfo.objects.get(id=book_id)
+            book = BookInfo.objects.get(isbn=isbn)
         except BaseException as e:
             return HttpResponse("user or book don't existent")
 

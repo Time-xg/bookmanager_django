@@ -24,6 +24,34 @@ def getBookInfo(isbn):
         return None
 
 
+class ManualAddBook(View):
+
+    def post(self, request):
+        params = request.POST
+
+        name = str(params.get('name')).strip()
+        author = str(params.get('author')).strip()
+        press = str(params.get('press')).strip()
+        price = str(params.get('price')).strip()
+        isbn = str(params.get('isbn')).strip()
+        labels = str(params.get('labels')).strip()
+        cover_url = str(params.get('cover_url')).strip()
+        publish_date = str(params.get('publish_date')).strip()
+
+        BookInfo.objects.create(
+            name=name,
+            author=author,
+            press=press,
+            price=price,
+            isbn=isbn,
+            labels=labels,
+            cover_url=cover_url,
+            publish_date=publish_date,
+        )
+
+        return HttpResponse("Add Book successful")
+
+
 class AddBook(View):
 
     def post(self, request):
